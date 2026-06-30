@@ -9,6 +9,7 @@ import type { OverviewStats } from "@/lib/overview";
 
 export const NAV = [
   { href: "/", label: "Dashboard", icon: Icon.Dashboard },
+  { href: "/chat", label: "Chat", icon: Icon.Chat },
   { href: "/generate", label: "Generate", icon: Icon.Generate },
   { href: "/analyze", label: "Analyze", icon: Icon.Analyze },
   { href: "/review", label: "Review", icon: Icon.Review },

@@ -1283,3 +1283,371 @@ h4 {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   Chat with a repository (RepoChat)
+   ============================================================ */
+.repo-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.repo-load-row {
+  display: flex;
+  gap: 8px;
+}
+.repo-load-row .input {
+  flex: 1;
+}
+.repo-load-err {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--high);
+}
+.repo-load-meta {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* Thread ----------------------------------------------------- */
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px;
+}
+.chat-empty {
+  margin: 24px 0;
+}
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: msgIn 0.28s ease both;
+}
+.msg-user {
+  align-items: flex-end;
+}
+.msg-assistant {
+  align-items: stretch;
+}
+
+.msg-bubble {
+  max-width: 92%;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.msg-bubble-user {
+  background: var(--accent-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 13px;
+  white-space: pre-wrap;
+  max-width: 80%;
+}
+.msg-bubble-error {
+  color: var(--high);
+  background: var(--high-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 13px;
+}
+
+/* Thinking (reasoning) --------------------------------------- */
+.thinking {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 12px;
+  max-width: 92%;
+}
+.thinking-summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  padding: 7px 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+}
+.thinking-summary::-webkit-details-marker {
+  display: none;
+}
+.thinking-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex: none;
+}
+.thinking-dot-live {
+  background: var(--accent);
+  animation: thinkPulse 1.1s ease-in-out infinite;
+}
+.thinking-body {
+  padding: 0 12px 11px 29px;
+  white-space: pre-wrap;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+/* Sources (citations) ---------------------------------------- */
+.msg-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 92%;
+}
+.msg-sources-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+.repo-cite {
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+.repo-cite-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.repo-cite-path {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.repo-cite-lines {
+  color: var(--text-faint);
+  flex: none;
+  margin-left: 8px;
+}
+.repo-cite-err {
+  padding: 6px 10px;
+  font-size: 11.5px;
+  color: var(--high);
+}
+.repo-cite-code {
+  margin: 0;
+  padding: 6px 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.repo-cite-line {
+  display: flex;
+  padding: 0 10px;
+  white-space: pre;
+}
+.repo-cite-num {
+  color: var(--text-faint);
+  user-select: none;
+  text-align: right;
+  min-width: 30px;
+  margin-right: 12px;
+  flex: none;
+}
+.repo-cite-text {
+  color: var(--text);
+}
+
+/* Input ------------------------------------------------------ */
+.chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  position: sticky;
+  bottom: 0;
+}
+.chat-textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 42px;
+}
+.chat-send {
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Streaming affordances -------------------------------------- */
+.stream-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+.typing {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 0;
+}
+.typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.typing span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+/* Markdown answer (.md) -------------------------------------- */
+.md {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.md > *:first-child {
+  margin-top: 0;
+}
+.md > *:last-child {
+  margin-bottom: 0;
+}
+.md p {
+  margin: 0 0 10px;
+}
+.md h1,
+.md h2,
+.md h3,
+.md h4 {
+  margin: 16px 0 8px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+.md h1 {
+  font-size: 17px;
+}
+.md h2 {
+  font-size: 15.5px;
+}
+.md h3 {
+  font-size: 14px;
+}
+.md ul,
+.md ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+.md li {
+  margin: 3px 0;
+}
+.md a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.md pre {
+  margin: 0 0 10px;
+  padding: 11px 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+.md pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.md blockquote {
+  margin: 0 0 10px;
+  padding: 2px 12px;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-muted);
+}
+.md table {
+  border-collapse: collapse;
+  margin: 0 0 10px;
+  font-size: 12.5px;
+}
+.md th,
+.md td {
+  border: 1px solid var(--border);
+  padding: 5px 9px;
+  text-align: left;
+}
+.md th {
+  background: var(--surface-2);
+}
+
+@keyframes msgIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+@keyframes thinkPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}

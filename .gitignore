@@ -76,3 +76,6 @@ temp/
 # The .ai/ folder, AGENTS.md and CLAUDE.md are
 # meant to be committed and shared.
 # ─────────────────────────────────────────────
+# Playwright + local test artifacts
+.playwright-mcp/
+*-working.png

@@ -84,4 +84,9 @@ export const Icon = {
       <path d="M6 9a6 6 0 0 0 6 6h4" />
     </Base>
   ),
+  Chat: (p: SVGProps<SVGSVGElement>) => (
+    <Base {...p}>
+      <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-1L3 20l1-3.5a8.38 8.38 0 0 1-1-4A8.5 8.5 0 0 1 11.5 4a8.38 8.38 0 0 1 8.5 7.5z" />
+    </Base>
+  ),
 };

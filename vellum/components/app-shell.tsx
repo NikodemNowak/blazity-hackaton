@@ -9,6 +9,7 @@ import { useLayoutMode } from "./layout-mode";
 
 // pathname prefix -> nav label (order matters; "/" checked last)
 const ROUTE_LABEL: Array<[string, string]> = [
+  ["/chat", "Chat"],
   ["/generate", "Generate"],
   ["/analyze", "Analyze"],
   ["/review", "Review"],
@@ -24,6 +25,11 @@ const CONTEXT: Record<string, string[]> = {
     "Health scores come from the last analysis.",
     "Documents below 70 are flagged for attention.",
     "Open Generate to draft a doc from code or notes.",
+  ],
+  Chat: [
+    "Load a public or private GitHub repo by URL.",
+    "Answers cite the exact file and lines they rely on.",
+    "Expand “Reasoning” to see how the model thought.",
   ],
   Generate: [
     "Pick a format and tone, then paste source material.",

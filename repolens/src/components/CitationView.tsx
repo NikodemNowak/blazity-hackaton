@@ -18,16 +18,18 @@ export default function CitationView({ repoId, citation }: { repoId: string; cit
   }, [repoId, citation]);
 
   return (
-    <div className="my-2 overflow-hidden rounded border border-neutral-800 bg-neutral-950 text-xs">
-      <div className="border-b border-neutral-800 px-2 py-1 font-mono text-neutral-400">
+    <div className="overflow-hidden rounded-md border border-[var(--codeBorder)] bg-[var(--code)] text-xs shadow-sm">
+      <div className="border-b border-[var(--codeBorder)] px-3 py-2 font-mono text-[var(--codeMuted)]">
         {citation.path}:{citation.startLine}-{citation.endLine}
       </div>
-      {err && <p className="px-2 py-1 text-red-400">{err}</p>}
+      {err && <p className="px-3 py-2 text-red-300">{err}</p>}
       {lines && (
-        <pre className="overflow-x-auto p-2">
+        <pre className="overflow-x-auto p-3 leading-5 text-[var(--codeText)]">
           {lines.map((l) => (
             <div key={l.n}>
-              <span className="mr-3 select-none text-neutral-600">{l.n}</span>
+              <span className="mr-3 inline-block w-8 select-none text-right text-[var(--codeMuted)]">
+                {l.n}
+              </span>
               {l.text}
             </div>
           ))}

@@ -27,24 +27,24 @@ export default function RepoLoader({ onLoaded }: { onLoaded: (r: IngestResponse)
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <input
-          className="flex-1 rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm"
+          className="min-h-11 flex-1 rounded-md border border-[var(--fieldBorder)] bg-[var(--field)] px-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:bg-[var(--surface)]"
           placeholder="https://github.com/owner/repo"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && load()}
         />
         <button
-          className="rounded bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 disabled:opacity-50"
+          className="min-h-11 rounded-md bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primaryText)] transition opacity-100 hover:opacity-90 disabled:cursor-not-allowed disabled:bg-[var(--disabled)]"
           onClick={load}
           disabled={loading || !url}
         >
-          {loading ? "Loading…" : "Load repo"}
+          {loading ? "Loading..." : "Load repo"}
         </button>
       </div>
-      {err && <p className="text-sm text-red-400">{err}</p>}
+      {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
     </div>
   );
 }
