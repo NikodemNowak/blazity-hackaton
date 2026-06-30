@@ -2,11 +2,13 @@
 
 ## What this repo is
 
-`blazity-hackaton` — a Blazity hackathon project on the theme **"AI for Content"**:
-a web app that uses AI to solve a real content-management pain (e.g. reformatting,
-brand/tone consistency, asset hunting). The stack is **Next.js + TypeScript**,
-powered by the **Claude (Anthropic)** API. No application code has landed yet, and
-the concrete product use case is still open. See `.ai/memory/` for stable context.
+`blazity-hackaton` — **RepoLens**, a Blazity "AI for Content" hackathon web app.
+Paste a GitHub repo URL and it ingests the repo, then lets you **chat with it**
+(answers cited to `file:line`), **generate docs** from the code, and **drift-check**
+README/docs against the code. The "content" is a codebase and its docs. Stack:
+**Next.js + TypeScript** powered by the **Claude (Anthropic)** API. No application
+code has landed yet. Concept/build plan: `docs/CONCEPT.md`; stable context in
+`.ai/memory/`.
 
 ## Structure
 
@@ -20,8 +22,13 @@ the concrete product use case is still open. See `.ai/memory/` for stable contex
 - Stack is decided (Next.js + TypeScript, Claude API) but **not yet scaffolded** —
   no `package.json` or lockfile exists. Confirm exact run/test/build commands once
   `create-next-app` (or equivalent) has run; update `.ai/memory/stack.md` then.
-- When building with Claude, default to the latest models (Opus 4.8, Sonnet 4.6,
-  Haiku 4.5) via the `@anthropic-ai/sdk`. Keep API keys in env, never commit them.
+- When building with Claude, default to the latest models via the `@anthropic-ai/sdk`:
+  Sonnet 4.6 for interactive chat, Opus 4.8 for drift/docs reasoning, Haiku 4.5 for a
+  stretch relevance pre-pass.
+- **All Claude and GitHub calls are server-side.** `ANTHROPIC_API_KEY` and
+  `GITHUB_TOKEN` live in env (never `NEXT_PUBLIC_*`, never committed); the browser
+  calls our API routes, which call the providers. No DB — repo bundles live in a
+  server-side in-memory `Map` keyed by `repoId`.
 - The only project-specific safe command today is Atlas tooling:
   `npx --yes @blazity-atlas/core@latest doctor` checks workspace health.
 - Do not edit the `<!-- BEGIN/END ATLAS -->` managed block below by hand.
