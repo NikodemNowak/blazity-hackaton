@@ -3,30 +3,66 @@
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Icon } from "@/components/icons";
-import { Loading, PageHead } from "@/components/ui";
-import { generateDoc } from "@/lib/api";
-import type { GenerateFormat, GenerateResult, GenerateTone } from "@/lib/types";
+import Markdown from "@/components/repo/Markdown";
+import { Badge, Loading, PageHead } from "@/components/ui";
+import type { DocType, DocsResponse, IngestResponse } from "@/lib/repo/types";
 
-const SAMPLE_SOURCE = `POST /v1/charges  -> create a charge { amount, currency, customer }
-GET  /v1/charges/:id -> fetch a charge
-auth: Bearer <api-key>
-errors: 4xx client, 5xx server`;
+type Tone = "concise" | "neutral" | "formal";
 
 export default function GeneratePage() {
-  const [source, setSource] = useState(SAMPLE_SOURCE);
-  const [format, setFormat] = useState<GenerateFormat>("api-reference");
-  const [tone, setTone] = useState<GenerateTone>("concise");
-  const [audience, setAudience] = useState("backend developers");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<GenerateResult | null>(null);
+  const [repoUrl, setRepoUrl] = useState("");
+  const [repo, setRepo] = useState<IngestResponse | null>(null);
+  const [repoErr, setRepoErr] = useState<string | null>(null);
+  const [loadingRepo, setLoadingRepo] = useState(false);
+
+  const [docType, setDocType] = useState<DocType>("onboarding");
+  const [tone, setTone] = useState<Tone>("concise");
+  const [audience, setAudience] = useState("developers new to this repository");
+  const [loadingDoc, setLoadingDoc] = useState(false);
+  const [docErr, setDocErr] = useState<string | null>(null);
+  const [result, setResult] = useState<DocsResponse | null>(null);
   const [copied, setCopied] = useState(false);
 
-  async function run() {
-    setLoading(true);
+  async function loadRepo() {
+    if (!repoUrl.trim() || loadingRepo) return;
+    setLoadingRepo(true);
+    setRepoErr(null);
     setResult(null);
-    const res = await generateDoc({ source, format, tone, audience });
-    setResult(res);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/ingest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoUrl }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Failed to load repo");
+      setRepo(json as IngestResponse);
+    } catch (e: unknown) {
+      setRepoErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoadingRepo(false);
+    }
+  }
+
+  async function generate() {
+    if (!repo || loadingDoc) return;
+    setLoadingDoc(true);
+    setDocErr(null);
+    setResult(null);
+    try {
+      const res = await fetch("/api/generate-docs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoId: repo.repoId, docType, tone, audience }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Failed to generate documentation");
+      setResult(json as DocsResponse);
+    } catch (e: unknown) {
+      setDocErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoadingDoc(false);
+    }
   }
 
   function copy() {
@@ -40,43 +76,79 @@ export default function GeneratePage() {
     <AppShell title="Generate">
       <PageHead
         title="Generate documentation"
-        desc="Turn rough source — code, notes, a changelog — into a structured draft. The model returns Markdown plus notes on what it inferred."
+        desc="Load a GitHub repository and draft documentation from code. Vellum selects documentation conventions by detected language, such as pydoc for Python and TypeDoc/JSDoc for TypeScript."
       />
 
-      <div className="grid grid-2">
-        <div className="card">
-          <div className="card-head">
-            <span className="card-title">Source</span>
+      <div className="grid grid-2 generate-workspace">
+        <div className="stack">
+          <div className="card">
+            <div className="card-head">
+              <span className="card-title">Repository</span>
+              {repo && <Badge tone="success">{repo.repoId}</Badge>}
+            </div>
+            <div className="card-pad stack">
+              <div className="repo-load-row">
+                <input
+                  className="input"
+                  placeholder="https://github.com/owner/repo"
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && loadRepo()}
+                  disabled={loadingRepo}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={loadRepo}
+                  disabled={loadingRepo || !repoUrl.trim()}
+                >
+                  {loadingRepo ? "Loading…" : repo ? "Reload" : "Load repo"}
+                </button>
+              </div>
+              {repoErr && <div className="repo-load-err">{repoErr}</div>}
+              {repo && (
+                <div className="repo-load-meta">
+                  <Icon.Docs width={14} height={14} />
+                  <span>
+                    {repo.stats.filesLoaded}/{repo.stats.filesTotal} files loaded
+                    {repo.stats.truncated ? " · truncated to budget" : ""}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="card-pad stack">
-            <div className="toolbar">
-              <div className="field">
-                <label className="label">Format</label>
-                <select
-                  className="select"
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value as GenerateFormat)}
-                >
-                  <option value="readme">README</option>
-                  <option value="api-reference">API reference</option>
-                  <option value="how-to">How-to guide</option>
-                  <option value="release-notes">Release notes</option>
-                </select>
+
+          <div className="card">
+            <div className="card-head">
+              <span className="card-title">Draft settings</span>
+            </div>
+            <div className="card-pad stack">
+              <div className="toolbar">
+                <div className="field">
+                  <label className="label">Document type</label>
+                  <select
+                    className="select"
+                    value={docType}
+                    onChange={(e) => setDocType(e.target.value as DocType)}
+                  >
+                    <option value="onboarding">Onboarding</option>
+                    <option value="architecture">Architecture</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label className="label">Tone</label>
+                  <select
+                    className="select"
+                    value={tone}
+                    onChange={(e) => setTone(e.target.value as Tone)}
+                  >
+                    <option value="concise">Concise</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="formal">Formal</option>
+                  </select>
+                </div>
               </div>
+
               <div className="field">
-                <label className="label">Tone</label>
-                <select
-                  className="select"
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value as GenerateTone)}
-                >
-                  <option value="neutral">Neutral</option>
-                  <option value="concise">Concise</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                </select>
-              </div>
-              <div className="field" style={{ flex: 1 }}>
                 <label className="label">Audience</label>
                 <input
                   className="input"
@@ -85,29 +157,16 @@ export default function GeneratePage() {
                   placeholder="e.g. backend developers"
                 />
               </div>
-            </div>
 
-            <div className="field">
-              <label className="label">Source material</label>
-              <textarea
-                className="textarea"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-              />
-            </div>
-
-            <div className="row">
               <button
                 className="btn btn-primary"
-                onClick={run}
-                disabled={loading || !source.trim()}
+                onClick={generate}
+                disabled={!repo || loadingDoc}
               >
                 <Icon.Generate width={15} height={15} />
-                {loading ? "Generating…" : "Generate draft"}
+                {loadingDoc ? "Generating…" : "Generate from repo"}
               </button>
-              <span className="faint" style={{ fontSize: 12 }}>
-                Mock · ~1s
-              </span>
+              {docErr && <div className="repo-load-err">{docErr}</div>}
             </div>
           </div>
         </div>
@@ -123,26 +182,35 @@ export default function GeneratePage() {
             )}
           </div>
 
-          {loading && <Loading label="Drafting documentation…" />}
+          {loadingDoc && <Loading label="Drafting documentation from repository…" />}
 
-          {!loading && !result && (
+          {!loadingDoc && !result && (
             <div className="empty">
               <Icon.Doc className="empty-icon" width={28} height={28} />
-              <div>No draft yet</div>
+              <div>No generated documentation yet</div>
               <div className="faint" style={{ fontSize: 12.5 }}>
-                Add source material and generate a draft.
+                Load a repository, then generate an onboarding or architecture draft.
               </div>
             </div>
           )}
 
-          {!loading && result && (
+          {!loadingDoc && result && (
             <>
-              <div className="md-preview">{result.markdown}</div>
+              <div className="doc-profile-strip">
+                {result.languageProfiles.map((profile) => (
+                  <Badge key={`${profile.language}-${profile.tooling}`} tone="info">
+                    {profile.language} · {profile.tooling} · {profile.files} files
+                  </Badge>
+                ))}
+              </div>
+              <div className="md-preview">
+                <Markdown>{result.markdown}</Markdown>
+              </div>
               <div className="card-pad" style={{ borderTop: "1px solid var(--border)" }}>
                 <div className="row-between" style={{ marginBottom: 8 }}>
-                  <span className="card-sub">Model notes</span>
+                  <span className="card-sub">Generation notes</span>
                   <span className="faint" style={{ fontSize: 12 }}>
-                    {result.wordCount} words
+                    {result.markdown.split(/\s+/).filter(Boolean).length} words
                   </span>
                 </div>
                 <ul className="notes">

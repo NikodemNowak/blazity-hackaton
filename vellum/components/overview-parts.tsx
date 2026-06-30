@@ -14,6 +14,7 @@ export const NAV = [
   { href: "/analyze", label: "Analyze", icon: Icon.Analyze },
   { href: "/review", label: "Review", icon: Icon.Review },
   { href: "/documents", label: "Documents", icon: Icon.Docs },
+  { href: "/settings", label: "Settings", icon: Icon.Settings },
 ];
 
 export function Brand({ sub = "Docs, with an LLM" }: { sub?: string }) {

@@ -41,6 +41,12 @@ export type DocType = "onboarding" | "architecture";
 
 export interface DocsResponse {
   markdown: string;
+  notes: string[];
+  languageProfiles: {
+    language: string;
+    tooling: string;
+    files: number;
+  }[];
 }
 
 export type Severity = "high" | "medium" | "low";

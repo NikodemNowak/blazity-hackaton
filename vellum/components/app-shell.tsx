@@ -3,8 +3,6 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Brand, SideNav, TopNav } from "./overview-parts";
-import { ThemeSwitcher } from "./theme-switcher";
-import { LayoutToggle } from "./layout-toggle";
 import { useLayoutMode } from "./layout-mode";
 
 // pathname prefix -> nav label (order matters; "/" checked last)
@@ -14,6 +12,7 @@ const ROUTE_LABEL: Array<[string, string]> = [
   ["/analyze", "Analyze"],
   ["/review", "Review"],
   ["/documents", "Documents"],
+  ["/settings", "Settings"],
   ["/", "Dashboard"],
 ];
 
@@ -31,9 +30,9 @@ const CONTEXT: Record<string, string[]> = {
     "Expand “Reasoning” to see how the model thought.",
   ],
   Generate: [
-    "Pick a format and tone, then paste source material.",
+    "Load a repository before drafting docs.",
+    "Language profiles choose conventions such as pydoc, TypeDoc, godoc, or rustdoc.",
     "The draft returns as Markdown you can copy.",
-    "Model notes explain what was inferred.",
   ],
   Analyze: [
     "Paste an existing doc to score it.",
@@ -49,6 +48,11 @@ const CONTEXT: Record<string, string[]> = {
     "Health reflects the last analysis run.",
     "Status is the editorial state of the doc.",
     "Open a doc to analyze or review it.",
+  ],
+  Settings: [
+    "Themes and layout live here.",
+    "Split mode keeps navigation, work area, and context separate.",
+    "On smaller screens the right rail collapses below the main content.",
   ],
 };
 
@@ -74,10 +78,9 @@ function RailContext({ label }: { label: string }) {
         </ul>
       </div>
       <div className="card card-pad" style={{ background: "var(--surface-2)" }}>
-        <div style={{ fontSize: 12, fontWeight: 600 }}>Mock mode</div>
+        <div style={{ fontSize: 12, fontWeight: 600 }}>Repository mode</div>
         <div className="faint" style={{ fontSize: 11.5, marginTop: 4 }}>
-          Responses are simulated. Swap <span className="kbd">lib/api.ts</span>{" "}
-          for live calls.
+          Chat and generation use live repo bundles when keys are configured.
         </div>
       </div>
     </>
@@ -101,10 +104,6 @@ export function AppShell({
         <header className="lt-topbar">
           <Brand sub="" />
           <TopNav current={current} />
-          <div className="row" style={{ marginLeft: "auto", gap: 10 }}>
-            <LayoutToggle />
-            <ThemeSwitcher />
-          </div>
         </header>
         <main className="lt-main">{children}</main>
       </div>
@@ -119,10 +118,6 @@ export function AppShell({
       </aside>
       <main className="ls-main">{children}</main>
       <aside className="ls-rail">
-        <div className="row-between">
-          <LayoutToggle />
-          <ThemeSwitcher />
-        </div>
         <RailContext label={current} />
       </aside>
     </div>
